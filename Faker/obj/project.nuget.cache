@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "OCQlxMU/A72khz09dOEJcJyyEpjlIne9m9PF3Np4seiDSJzlAfJDoRw5wg8unTBlWbS1cOddMnxXY+bJgGzSUg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\37529\\RiderProjects\\Faker\\Faker\\Faker.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\37529\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
