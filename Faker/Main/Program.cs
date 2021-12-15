@@ -12,8 +12,6 @@ namespace Main
         {
             Faker.Faker f = new Faker.Faker();
             User ff = f.Create<User>();
-            Bar cc = f.Create<Bar>();
-            Console.WriteLine(JsonConvert.SerializeObject(cc,Formatting.Indented));
             Console.WriteLine(JsonConvert.SerializeObject(ff,Formatting.Indented));
         }
     }
