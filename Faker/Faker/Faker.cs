@@ -1,7 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using Faker.BaseTypes;
 using Main;
@@ -38,7 +36,7 @@ namespace Faker
 
         public T Create<T>()
         {
-            
+
             return (T)Create(typeof(T));
         }
 
@@ -87,7 +85,7 @@ namespace Faker
                 return false;
 
             instance = (new ArrayGenerator(this, type)).Create();
-            
+
             return true;
         }
 
@@ -97,7 +95,7 @@ namespace Faker
             if (generators.TryGetValue(type, out IGenerator generator))
             {
                 instance = generator.Create();
-                return true;                                                                                                                                                                                         
+                return true;
             }
 
             return false;
@@ -118,7 +116,7 @@ namespace Faker
             return true;
         }
 
-        private bool TryList(Type type,out object instance)
+        private bool TryList(Type type, out object instance)
         {
             instance = null;
             if (!type.IsGenericType)
@@ -129,7 +127,7 @@ namespace Faker
             var innerTypes = type.GetGenericArguments();
             Type gType = innerTypes[0];
             //Console.WriteLine(gType.Name);
-            int count = new Random().Next(1,20);
+            int count = new Random().Next(1, 20);
             instance = Activator.CreateInstance(type);
             object[] arr = new object[1];
             for (int i = 0; i < count; i++)
@@ -140,7 +138,11 @@ namespace Faker
 
             return true;
         }
-
+        //создаю дополнительный лист для хранения всех классов 
+        List<Type> counter = new List<Type>();
+        //ввожу два счетчика для собаки и человека
+        public int count1 = 0;
+        public int count2 = 0;
 
         private bool TryGenerateCls(Type type, out object instance)
         {
@@ -150,12 +152,38 @@ namespace Faker
                 return false;
 
             if (circularReferencesEncounter.Contains(type))
-            {
-                instance = default;
-                return true;
+            {  //берем текущий тип
+                Type type1 = type;
+
+                foreach (Type t in counter)
+                {
+                    //смотрим , чтобы у нас было два отличных класса и начинаем считать
+                    if (t.Equals(typeof(User)))
+                    {
+                        count1++;
+                    }
+
+                    if (!t.Equals(typeof(Dog)))
+                    {
+                        count2++;
+                    }
+                    //когда мы достигли нужной вложенности
+                    if (count1 == 3 && count2 == 3) { break; }
+                }
+                if (count1 == 3 && count2 == 3)
+                {
+                    //выходим
+                    instance = default;
+
+                    return true;
+                }
+                //не достигли, значит зануляем и сначала
+                count1 = 0;
+                count2 = 0;
             }
 
             circularReferencesEncounter.Add(type);
+            counter.Add(type);
             if (TryConstruct(type, out instance))
             {
                 GenerateFillProps(instance, type);
@@ -198,7 +226,7 @@ namespace Faker
 
             return false;
         }
-        
+
         private bool TryGetMaxParamsConstructor(Type type, out ConstructorInfo ctn)
         {
             list.Clear();
@@ -210,17 +238,16 @@ namespace Faker
 
             for (int i = 0; i < ctns.Length; i++)
             {
-                  
-                    if (
-                        ctn == null || ctns[i].GetParameters().Length > ctn.GetParameters().Length)
-                    {
-              
-                        ctn = ctns[i];
-                        list.Add(ctn);
-                    }
-                    
+
+                if (
+                    ctn == null || ctns[i].GetParameters().Length > ctn.GetParameters().Length)
+                {
+
+                    ctn = ctns[i];
+                    list.Add(ctn);
+                }
+
             }
-            
 
 
             if (ctn == null)
@@ -245,10 +272,10 @@ namespace Faker
             }
         }
 
-        private void  GenerateFillFields(object instance, Type type)
+        private void GenerateFillFields(object instance, Type type)
         {
-            var fields = type.GetFields( BindingFlags.Instance | BindingFlags.Public);
-            
+            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
+
             foreach (var field in fields)
             {
                 var value = Create(field.FieldType);
@@ -258,17 +285,17 @@ namespace Faker
 
         private object[] GenerateConstructorParams(ConstructorInfo constructor)
         {
-            
+
             var prms = constructor.GetParameters();
             object[] generated = new object[prms.Length];
 
-            
+
             for (int i = 0; i < prms.Length; i++)
             {
                 var p = prms[i];
                 generated[i] = Create(p.ParameterType);
             }
-            
+
             return generated;
         }
     }
