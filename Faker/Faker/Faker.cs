@@ -126,7 +126,6 @@ namespace Faker
                 return false;
             var innerTypes = type.GetGenericArguments();
             Type gType = innerTypes[0];
-            //Console.WriteLine(gType.Name);
             int count = new Random().Next(1, 20);
             instance = Activator.CreateInstance(type);
             object[] arr = new object[1];
@@ -163,7 +162,7 @@ namespace Faker
                         count1++;
                     }
 
-                    if (!t.Equals(typeof(Dog)))
+                    if (t.Equals(typeof(Dog)))
                     {
                         count2++;
                     }
@@ -205,7 +204,6 @@ namespace Faker
                 if (TryGetMaxParamsConstructor(type, out ConstructorInfo ctn))
                 {
                     prms = GenerateConstructorParams(ctn);
-                    /*Console.WriteLine(prms.Length);*/
                     instance = ctn.Invoke(prms);
                     return true;
                 }
