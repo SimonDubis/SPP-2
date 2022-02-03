@@ -10,6 +10,8 @@ namespace Faker
     {
         private readonly List<Type> circularReferencesEncounter;
 
+        private Dictionary<Type, int> mapa;
+
         private Dictionary<Type, IGenerator> generators;
         private List<ConstructorInfo> list = new List<ConstructorInfo>();
         private int countOfException;
@@ -29,6 +31,8 @@ namespace Faker
                 { typeof(short), new ShortGenerator()},
                 { typeof(string), new StringGenerator()},
             };
+
+            mapa = new Dictionary<Type, int>();
             PluginLoader loader = new PluginLoader(generators);
             loader.LoadPluginGenerators();
             circularReferencesEncounter = new List<Type>();
@@ -150,7 +154,28 @@ namespace Faker
             if (!type.IsClass && !type.IsValueType)
                 return false;
 
-            if (circularReferencesEncounter.Contains(type))
+            if (mapa.ContainsKey(type))
+            {
+                int temp;
+                mapa.TryGetValue(type, out temp);
+                if (temp == 4)
+                {
+                    instance = default;
+                    return true;
+                } else
+                {
+                    temp++;
+                    mapa.Remove(type);
+                    mapa.Add(type, temp);
+                }
+                
+            }
+            else
+            {
+                mapa.Add(type, 1);
+            }
+
+            /*if (circularReferencesEncounter.Contains(type))
             {  //берем текущий тип
                 Type type1 = type;
 
@@ -179,16 +204,21 @@ namespace Faker
                 //не достигли, значит зануляем и сначала
                 count1 = 0;
                 count2 = 0;
-            }
+            }*/
 
-            circularReferencesEncounter.Add(type);
-            counter.Add(type);
+            //circularReferencesEncounter.Add(type);
+            //counter.Add(type);
             if (TryConstruct(type, out instance))
             {
                 GenerateFillProps(instance, type);
                 GenerateFillFields(instance, type);
 
-                circularReferencesEncounter.Remove(type);
+                int temp;
+                mapa.TryGetValue(type, out temp);
+                mapa.Remove(type);
+                temp--;
+                mapa.Add(type, temp);
+                //circularReferencesEncounter.Remove(type);
                 return true;
             }
 
